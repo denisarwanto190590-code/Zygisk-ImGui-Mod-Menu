@@ -33,7 +33,7 @@ LOCAL_SRC_FILES := main.cpp \
 				   ImGui/imgui_demo.cpp \
 				   ImGui/imgui_draw.cpp \
 				   ImGui/imgui_tables.cpp \
-				   ImGui/imgui_widgets.cpp \
+				   ImGui/imgui_widgets.cpp
 
 LOCAL_LDLIBS := -llog -landroid -lEGL -lGLESv3 -lGLESv2
 
