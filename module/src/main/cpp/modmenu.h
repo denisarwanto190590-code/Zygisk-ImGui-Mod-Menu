@@ -1,6 +1,6 @@
 //
 // Created by Reveny on 2023/1/13.
-// Updated for Free Fire Max ESP Line (Pure Standar C++)
+// Updated for Free Fire Max ESP Line (Pure Standard C++)
 //
 #define targetLibName "libil2cpp.so"
 
@@ -9,6 +9,8 @@
 #include <cmath>
 #include <android/log.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "KittyMemory/MemoryPatch.h"
 #include "Includes/ESP.h"
@@ -39,9 +41,9 @@ struct Vector2 {
     float x, y;
 };
 
-static int enable_hack;
+static int enable_hack = 0;
 static char *game_data_dir = nullptr;
-static char *game_package_name = "com.dts.freefiremax"; 
+static const char *game_package_name = "com.dts.freefiremax"; 
 
 // Fungsi pembantu untuk membaca memori RAM (Memory Reading)
 template <typename T>
@@ -88,35 +90,43 @@ void RenderESPLine(uintptr_t il2cppBase) {
     }
 }
 
-// Fungsi pencocokan paket game target
+// Fungsi pencocokan paket game target (Aman tanpa array tipuan)
 bool isGame(JNIEnv *env, jstring appDataDir) {
-    if (!appDataDir) {
-        return false;
-    }
+    if (!appDataDir) return false;
     const char *app_data_dir = env->GetStringUTFChars(appDataDir, nullptr);
-    static char package_name[256]; 
-    if (sscanf(app_data_dir, "/data/%*[^/]/%d/%s", 0, package_name) != 2) {
-        if (sscanf(app_data_dir, "/data/%*[^/]/%s", package_name) != 1) {
-            package_name[0] = '\0'; 
-            return false;
-        }
-    }
-    if (strcmp(package_name, game_package_name) == 0) {
+    if (!app_data_dir) return false;
+
+    // Cek apakah direktori mengandung nama paket game target
+    if (strstr(app_data_dir, game_package_name) != nullptr) {
         game_data_dir = new char[strlen(app_data_dir) + 1];
         strcpy(game_data_dir, app_data_dir);
         env->ReleaseStringUTFChars(appDataDir, app_data_dir);
         return true;
-    } else {
-        env->ReleaseStringUTFChars(appDataDir, app_data_dir);
-        return false;
     }
+    env->ReleaseStringUTFChars(appDataDir, app_data_dir);
+    return false;
+}
+
+// Cara murni Linux Android untuk mencari Base Address tanpa bantuan library luar
+uintptr_t AmbilBaseAddress(const char* libName) {
+    uintptr_t startAddress = 0;
+    char line[512];
+    FILE* fp = fopen("/proc/self/maps", "rt");
+    if (fp != nullptr) {
+        while (fgets(line, sizeof(line), fp)) {
+            if (strstr(line, libName) != nullptr) {
+                if (sscanf(line, "%lx-", &startAddress) == 1) {
+                    break;
+                }
+            }
+        }
+        fclose(fp);
+    }
+    return startAddress;
 }
 
 void drawMenu() {
-    // Membaca Base Address menggunakan library bawaan KittyMemory agar tidak eror
-    ProcMap il2cppMap = KittyMemory::getLibraryMap(targetLibName);
-    uintptr_t il2cppBaseAddress = il2cppMap.isValid() ? il2cppMap.startAddress : 0;
-
+    uintptr_t il2cppBaseAddress = AmbilBaseAddress(targetLibName);
     if (il2cppBaseAddress != 0) {
         RenderESPLine(il2cppBaseAddress);
     }
@@ -124,15 +134,15 @@ void drawMenu() {
 }
 
 void *hack_thread(void *) {
-    LOGI("hack thread dipicu");
-    initModMenu((void *)drawMenu);
-
-    ProcMap il2cppMap;
+    LOGI("Hack thread berhasil dijalankan.");
+    
+    uintptr_t il2cppBaseAddress = 0;
+    // Loop tunggu sampai library game selesai dimuat ke RAM oleh Android
     do {
         sleep(1);
-        il2cppMap = KittyMemory::getLibraryMap(targetLibName);
-    } while (!il2cppMap.isValid());
+        il2cppBaseAddress = AmbilBaseAddress(targetLibName);
+    } while (il2cppBaseAddress == 0);
 
-    LOGI("Library game berhasil dimuat");
+    LOGI("Library game terdeteksi pada alamat memori!");
     return nullptr;
 }
