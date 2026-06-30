@@ -1,18 +1,24 @@
 //
 // Created by Reveny on 2023/1/13.
-// Updated for Free Fire Max ESP Line (Final Fix)
+// Updated for Free Fire Max ESP Line (Pure Standar C++)
 //
 #define targetLibName "libil2cpp.so"
 
 #include <jni.h>
 #include <sys/system_properties.h>
 #include <cmath>
+#include <android/log.h>
+#include <unistd.h>
 
 #include "KittyMemory/MemoryPatch.h"
 #include "Includes/ESP.h"
 #include "Includes/Dobby/dobby.h"
 #include "Includes/Utils.h"
 #include "Includes/ImGui.h"
+
+// Makro Log Android Standar agar tidak memicu eror "undefined"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, "ZygiskMenu", __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, "ZygiskMenu", __VA_ARGS__)
 
 // ====================================================================
 // DAFTAR OFFSET MATANG ESP LINE (FREE FIRE MAX)
@@ -82,7 +88,7 @@ void RenderESPLine(uintptr_t il2cppBase) {
     }
 }
 
-// Mengubah tipe menjadi bool agar cocok 100% dengan main.cpp
+// Fungsi pencocokan paket game target
 bool isGame(JNIEnv *env, jstring appDataDir) {
     if (!appDataDir) {
         return false;
@@ -107,7 +113,10 @@ bool isGame(JNIEnv *env, jstring appDataDir) {
 }
 
 void drawMenu() {
-    uintptr_t il2cppBaseAddress = getBaseAddress(targetLibName);
+    // Membaca Base Address menggunakan library bawaan KittyMemory agar tidak eror
+    ProcMap il2cppMap = KittyMemory::getLibraryMap(targetLibName);
+    uintptr_t il2cppBaseAddress = il2cppMap.isValid() ? il2cppMap.startAddress : 0;
+
     if (il2cppBaseAddress != 0) {
         RenderESPLine(il2cppBaseAddress);
     }
@@ -115,11 +124,15 @@ void drawMenu() {
 }
 
 void *hack_thread(void *) {
+    LOGI("hack thread dipicu");
     initModMenu((void *)drawMenu);
 
+    ProcMap il2cppMap;
     do {
         sleep(1);
-    } while (!isLibraryLoaded(targetLibName));
+        il2cppMap = KittyMemory::getLibraryMap(targetLibName);
+    } while (!il2cppMap.isValid());
 
+    LOGI("Library game berhasil dimuat");
     return nullptr;
 }
