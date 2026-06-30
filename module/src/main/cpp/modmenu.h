@@ -101,10 +101,10 @@ int isGame(JNIEnv *env, jstring appDataDir) {
         return 0;
     }
     const char *app_data_dir = env->GetStringUTFChars(appDataDir, nullptr);
-    static char package_name[256]; // <--- SUDAH DIPERBAIKI PANJANG ARRAY-NYA
+    static char package_name[256]; // <--- DI SINI SUDAH SINKRON 100% PAKAI ARRAY [256]
     if (sscanf(app_data_dir, OBFUSCATE("/data/%*[^/]/%d/%s"), 0, package_name) != 2) {
         if (sscanf(app_data_dir, OBFUSCATE("/data/%*[^/]/%s"), package_name) != 1) {
-            package_name[0] = '\0'; // <--- SUDAH DIPERBAIKI PENULISAN INDEKSNYA
+            package_name[0] = '\0'; // <--- DI SINI SUDAH SINKRON MEMAKAI INDEKS AWAL [0]
             LOGW(OBFUSCATE("can't parse %s"), app_data_dir);
             return 0;
         }
