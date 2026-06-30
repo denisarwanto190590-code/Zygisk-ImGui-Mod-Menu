@@ -1,4 +1,4 @@
-name: Build Android Mod Module
+name: Build Zygisk Module
 
 on:
   workflow_dispatch:
@@ -8,27 +8,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android NDK
-        uses: nndess/setup-ndk@v1
-        with:
-          ndk-version: r25c
+      - name: Setup Android SDK & NDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build with Gradle
+      - name: Build Magisk Module
         run: |
           chmod +x gradlew
-          ./gradlew :module:assembleRelease
+          ./gradlew assembleRelease
 
-      - name: Upload Magisk Module Artifact
+      - name: Upload Module zip
         uses: actions/upload-artifact@v4
         with:
           name: Zygisk-ESP-FFMAX
-          path: out/*.zip
+          path: app/build/outputs/apk/release/*.apk
