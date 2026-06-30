@@ -90,13 +90,12 @@ void RenderESPLine(uintptr_t il2cppBase) {
     }
 }
 
-// Fungsi pencocokan paket game target (Aman tanpa array tipuan)
+// Fungsi pencocokan paket game target 
 bool isGame(JNIEnv *env, jstring appDataDir) {
     if (!appDataDir) return false;
     const char *app_data_dir = env->GetStringUTFChars(appDataDir, nullptr);
     if (!app_data_dir) return false;
 
-    // Cek apakah direktori mengandung nama paket game target
     if (strstr(app_data_dir, game_package_name) != nullptr) {
         game_data_dir = new char[strlen(app_data_dir) + 1];
         strcpy(game_data_dir, app_data_dir);
@@ -107,10 +106,10 @@ bool isGame(JNIEnv *env, jstring appDataDir) {
     return false;
 }
 
-// Cara murni Linux Android untuk mencari Base Address tanpa bantuan library luar
+// Cara murni Linux Android untuk mencari Base Address (SUDAH DIPERBAIKI ARRAY-NYA)
 uintptr_t AmbilBaseAddress(const char* libName) {
     uintptr_t startAddress = 0;
-    char line[512];
+    char line[512]; // <--- Sudah diperbaiki menjadi array berukuran 512 karakter
     FILE* fp = fopen("/proc/self/maps", "rt");
     if (fp != nullptr) {
         while (fgets(line, sizeof(line), fp)) {
@@ -137,7 +136,6 @@ void *hack_thread(void *) {
     LOGI("Hack thread berhasil dijalankan.");
     
     uintptr_t il2cppBaseAddress = 0;
-    // Loop tunggu sampai library game selesai dimuat ke RAM oleh Android
     do {
         sleep(1);
         il2cppBaseAddress = AmbilBaseAddress(targetLibName);
