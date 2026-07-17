@@ -47,10 +47,10 @@ void *hack_thread(void *) {
         sleep(1);
     }
 
-    // [HOOK 1] Mengunci offset get_Position (0x7CEE8A0)
-    DobbyHook((void *)(il2cpp_base + 0x7CEE8A0), (void *)hk_GetPosition, (void **)&old_GetPosition);
+    // [HOOK 1] Mengunci offset get_Position (SUDAH DIUPDATE)
+    DobbyHook((void *)(il2cpp_base + 0x80F07A0), (void *)hk_GetPosition, (void **)&old_GetPosition);
 
-    // [HOOK 2] Mengunci offset Kamera UGCAPIWorldToScreenPoint (0x80BFB2C)
+    // [HOOK 2] Mengunci offset Kamera UGCAPIWorldToScreenPoint (SUDAH DIUPDATE)
     DobbyHook((void *)(il2cpp_base + 0x80BFB2C), (void *)hk_WorldToScreenPoint, (void **)&old_WorldToScreenPoint);
 
     return nullptr;
