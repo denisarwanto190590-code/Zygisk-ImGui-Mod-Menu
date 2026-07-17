@@ -5,7 +5,7 @@
 #include "zygisk.hpp"
 #include <unistd.h>
 #include <pthread.h>
-#include "Includes/Dobby/dobby.h" // <--- JALURNYA SUDAH SANGAT AKURAT SEKARANG
+#include "dobby.h" 
 #include "modmenu.h"
 
 // Makro registrasi modul bawaan template AndnixSH Zygisk
