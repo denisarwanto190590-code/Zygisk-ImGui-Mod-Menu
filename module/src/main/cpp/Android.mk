@@ -1,23 +1,27 @@
 LOCAL_PATH := $(call my-dir)
 
+# --- CONFIG LIBRARY PREBUILT DOBBY ---
 include $(CLEAR_VARS)
 LOCAL_MODULE := libdobby
 LOCAL_SRC_FILES := $(LOCAL_PATH)/libs/$(TARGET_ARCH_ABI)/libdobby.a
 include $(PREBUILT_STATIC_LIBRARY)
 
-MAIN_LOCAL_PATH := $(call my-dir)
-LOCAL_C_INCLUDES += $(MAIN_LOCAL_PATH)
-
+# --- CONFIG UTAMA MODMENU ---
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := modmenu
 
-# Code optimization
+# Mendaftarkan folder pencarian header agar compiler bisa membaca zygisk.hpp, dobby.h, dkk
+LOCAL_C_INCLUDES := $(LOCAL_PATH) \
+                    $(LOCAL_PATH)/Includes \
+                    $(LOCAL_PATH)/Includes/Dobby
+
+# Optimasi Kode dan Compiler Flags
 LOCAL_CFLAGS := -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w
 LOCAL_CFLAGS += -fno-rtti -fno-exceptions -fpermissive
-LOCAL_CPPFLAGS := -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w -Werror -s -std=c++17
+LOCAL_CPPFLAGS := -Wno-error=format-security -fvisibility=hidden -ffunction-sections -fdata-sections -w -s -std=c++17
 LOCAL_CPPFLAGS += -Wno-error=c++11-narrowing -fms-extensions -fno-rtti -fno-exceptions -fpermissive
-LOCAL_LDFLAGS += -Wl,--gc-sections,--strip-all, -llog
+LOCAL_LDFLAGS += -Wl,--gc-sections,--strip-all -llog
 LOCAL_ARM_MODE := arm
 
 LOCAL_STATIC_LIBRARIES := libdobby
