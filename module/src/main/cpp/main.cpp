@@ -18,13 +18,13 @@ struct Vector3 {
 
 // --- LOGIKA HOOK OFFSET ESP ---
 
-// 1. Pointer fungsi asli get_Position
-void *(*old_GetPosition)(void *instance);
+// 1. Pointer fungsi asli get_Position (Diubah ke Vector3 agar lulus build)
+Vector3 (*old_GetPosition)(void *instance);
 
 // Fungsi Hook untuk mengambil posisi objek/pemain
-void *hk_GetPosition(void *instance) {
+Vector3 hk_GetPosition(void *instance) {
     if (instance != nullptr) {
-        // Di sini tempat ImGui memproses koordinat dari instance untuk digambar ke layar
+        // Tempat ImGui memproses koordinat dari instance
     }
     return old_GetPosition(instance);
 }
@@ -39,7 +39,7 @@ void *hk_WorldToScreenPoint(void *camera, Vector3 position, int eye, Vector3 *ou
 
 // --- MAIN HACK THREAD ---
 void *hack_thread(void *) {
-    unsigned long il2cpp_base = 0;
+    uintptr_t il2cpp_base = 0;
     
     // Tunggu sampai library Free Fire termuat di memori
     while (!il2cpp_base) {
@@ -47,10 +47,10 @@ void *hack_thread(void *) {
         sleep(1);
     }
 
-    // [HOOK 1] Mengunci offset get_Position (SUDAH DIUPDATE)
+    // [HOOK 1] Mengunci offset get_Position (0x80F07A0)
     DobbyHook((void *)(il2cpp_base + 0x80F07A0), (void *)hk_GetPosition, (void **)&old_GetPosition);
 
-    // [HOOK 2] Mengunci offset Kamera UGCAPIWorldToScreenPoint (SUDAH DIUPDATE)
+    // [HOOK 2] Mengunci offset Kamera UGCAPIWorldToScreenPoint (0x80BFB2C)
     DobbyHook((void *)(il2cpp_base + 0x80BFB2C), (void *)hk_WorldToScreenPoint, (void **)&old_WorldToScreenPoint);
 
     return nullptr;
