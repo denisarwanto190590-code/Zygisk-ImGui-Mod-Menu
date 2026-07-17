@@ -2,10 +2,10 @@
 // Created by Reveny on 2023/1/13.
 //
 
-#include "zygisk.hpp"  // <--- SUDAH DIGANTI AGAR SESUAI DENGAN FOLDER ANDA
+#include "zygisk.hpp"
 #include <unistd.h>
 #include <pthread.h>
-#include <dobby.h> 
+#include "Includes/Dobby/dobby.h" // <--- JALURNYA SUDAH SANGAT AKURAT SEKARANG
 #include "modmenu.h"
 
 // Makro registrasi modul bawaan template AndnixSH Zygisk
