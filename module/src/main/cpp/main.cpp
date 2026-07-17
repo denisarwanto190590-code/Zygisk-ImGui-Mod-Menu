@@ -2,12 +2,13 @@
 // Created by Reveny on 2023/1/13.
 //
 
-#include <zenith.h>
+#include "zygisk.hpp"  // <--- SUDAH DIGANTI AGAR SESUAI DENGAN FOLDER ANDA
 #include <unistd.h>
 #include <pthread.h>
 #include <dobby.h> 
 #include "modmenu.h"
 
+// Makro registrasi modul bawaan template AndnixSH Zygisk
 REGISTER_ZYGISK_MODULE(ZenithModule)
 REGISTER_ZYGISK_COMPANION(ZenithCompanion)
 
@@ -18,7 +19,7 @@ struct Vector3 {
 
 // --- LOGIKA HOOK OFFSET ESP ---
 
-// 1. Pointer fungsi asli get_Position (Diubah ke Vector3 agar lulus build)
+// 1. Pointer fungsi asli get_Position
 Vector3 (*old_GetPosition)(void *instance);
 
 // Fungsi Hook untuk mengambil posisi objek/pemain
